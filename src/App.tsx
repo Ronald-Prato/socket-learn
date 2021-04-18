@@ -1,26 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Route, Switch, useHistory } from 'react-router-dom'
+import { CreatePlayground } from './views/CreatePlayground'
+
+const Redirect = () => {
+  const history = useHistory()
+  const handleRedirection = () => {
+    history.replace('/create-playground')
+  }
+
+  return <>{handleRedirection()}</>
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <BrowserRouter>
+      <Switch>
+        <Route exact path="/" component={Redirect} />
+        <Route exact path="/login" />
+        <Route exact path="/create-playground" component={CreatePlayground} />
+      </Switch>
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App
