@@ -1,11 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { MainWrapper } from './styles'
 import { Button, Input } from 'antd'
-import { createUUID, setInLocalStorage, getFromLocalStorage } from '../../utils'
+import {
+  createUUID,
+  setInLocalStorage,
+  checkIfCurrentSession,
+} from '../../utils'
 import { useContext, useEffect, useState } from 'react'
 import Context from '../../globalState'
 import { IUser } from '../../globalState/models'
 import { useHistory } from 'react-router-dom'
+import { db } from '../../firebase'
 
 export const Login = () => {
   const { setCurrentUser } = useContext(Context)
@@ -15,12 +20,9 @@ export const Login = () => {
   const history = useHistory()
 
   useEffect(() => {
-    if (getFromLocalStorage('current-user')) {
-      const parsedUser: IUser = JSON.parse(
-        getFromLocalStorage('current-user') as string
-      )
-
-      setCurrentUser(parsedUser)
+    const currentUser = checkIfCurrentSession()
+    if (currentUser) {
+      setCurrentUser(currentUser)
       history.push('/create-playground')
     }
   }, [])
@@ -32,8 +34,24 @@ export const Login = () => {
       rank: 0,
     }
 
-    setInLocalStorage('current-user', newUser)
-    setCurrentUser(newUser)
+    db.collection('users')
+      .doc()
+      .set(newUser)
+      .then(() => {
+        console.log('%cUser created', 'color: green; font-weight: bolder')
+
+        setInLocalStorage('current-user', newUser)
+        setCurrentUser(newUser)
+        history.push('/create-playground')
+      })
+      .catch(err => {
+        console.log(
+          '%cError creating the post',
+          'color: red; font-weight: bolder',
+          err
+        )
+        alert('Hubo un error ingresando, vuelve a intentarlo')
+      })
   }
 
   const handleCharCounter = (event: React.ChangeEvent<HTMLInputElement>) => {

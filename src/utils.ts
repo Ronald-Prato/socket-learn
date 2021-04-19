@@ -14,3 +14,13 @@ export const setInLocalStorage = (key: string, value: any) => {
   const parsedValue = JSON.stringify(value)
   localStorage.setItem(key, parsedValue)
 }
+
+export const checkIfCurrentSession = () => {
+  const parsedUser = JSON.parse(getFromLocalStorage('current-user') as string)
+
+  if (!parsedUser) {
+    return false
+  }
+
+  return parsedUser
+}
