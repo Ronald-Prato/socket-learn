@@ -2,7 +2,7 @@ import React from 'react'
 
 export interface IGlobalContext {
   state: IState
-  setNewUser: (newUser: IUser) => void
+  setCurrentUser: (user: IUser) => void
 }
 
 export interface IState {

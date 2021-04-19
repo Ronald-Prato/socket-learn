@@ -15,18 +15,18 @@ const initialState: IState = {
 export const GlobalState = ({ children }: IGlobalState) => {
   const [state, setState] = useState<IState>(initialState)
 
-  const setNewUser = (newUser: IUser) => {
+  const setCurrentUser = (user: IUser) => {
     setState(
       produce(state, stateDraft => {
-        stateDraft.user.id = newUser.id
-        stateDraft.user.nickname = newUser.nickname
-        stateDraft.user.rank = newUser.rank
+        stateDraft.user.id = user.id
+        stateDraft.user.nickname = user.nickname
+        stateDraft.user.rank = user.rank
       })
     )
   }
 
   return (
-    <Context.Provider value={{ state, setNewUser }}>
+    <Context.Provider value={{ state, setCurrentUser }}>
       {children}
     </Context.Provider>
   )
