@@ -18,7 +18,6 @@ const socket = io(SOCKET_URI)
 export const Queue = () => {
   const { state, setCurrentUser } = useContext(Context)
   const { user: currentLSUser } = state
-  const [localCurrentId, setLocalCurrentId] = useState('')
   const [isInQueue, setIsInQueue] = useState(false)
   const [matchFound, setMatchFoud] = useState(false)
   const [showToast, setShowToast] = useState(false)
@@ -34,7 +33,6 @@ export const Queue = () => {
     const currentUser = checkIfCurrentSession()
     setCurrentUser(currentUser)
     socket.emit('new-user', currentUser)
-    setLocalCurrentId(currentUser.id)
   }, [])
 
   useEffect(() => {
