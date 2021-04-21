@@ -25,8 +25,12 @@ export const MainWrapper = styled.div`
   );
 
   div.avatar-card {
-    width: 500px;
-    height: 300px;
+    width: 30%;
+    min-width: 280px;
+    max-width: 500px;
+    height: 35%;
+    min-height: 220px;
+    max-height: 320px;
     background: #121212;
     border-radius: 12px;
     display: flex;
