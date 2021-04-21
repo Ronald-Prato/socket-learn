@@ -1,10 +1,12 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React from 'react'
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
-import { checkIfCurrentSession } from './utils'
+import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom'
+
 import { CreatePlayground } from './views/CreatePlayground'
 import { Home } from './views/Home'
 import { Login } from './views/Login'
+import { Queue } from './views/SocketLearn/Queue'
+/* eslint-disable react-hooks/exhaustive-deps */
+import React from 'react'
+import { checkIfCurrentSession } from './utils'
 
 interface IPrivateRoute {
   component: React.ComponentType<any>
@@ -32,6 +34,7 @@ function App() {
           path="/create-playground"
           component={CreatePlayground}
         />
+        <PrivateRoute exact path="/queue" component={Queue} />
       </Switch>
     </BrowserRouter>
   )

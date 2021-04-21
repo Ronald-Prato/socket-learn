@@ -1,0 +1,66 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useContext, useEffect, useState } from 'react'
+
+import { Button } from 'antd'
+import Context from '../../../globalState'
+import { MainWrapper } from './styles'
+import { SOCKET_URI } from '../../../constants'
+import axios from 'axios'
+import { checkIfCurrentSession } from '../../../utils'
+import io from 'socket.io-client'
+
+const socket = io(SOCKET_URI)
+
+export const Queue = () => {
+  const { state, setCurrentUser } = useContext(Context)
+  const { user: currentLSUser } = state
+  const [isInQueue, setIsInQueue] = useState(false)
+
+  useEffect(() => {
+    const currentUser = checkIfCurrentSession()
+    setCurrentUser(currentUser)
+  }, [])
+
+  useEffect(() => {
+    socket.emit('new-user', state.user)
+    socket.emit('check-in', state.user.id)
+  }, [state.user])
+
+  // This is only to register lifetime-use sockets listeners
+  useEffect(() => {
+    socket.on('matched', () => {
+      // setShowModal(true)
+    })
+  }, [])
+
+  const handleEnterInQueue = async () => {
+    try {
+      const response = await axios.get(
+        `${SOCKET_URI}/get-in-queue?user=${currentLSUser.id}`
+      )
+      // setGettingIntoQueue(false)
+      setIsInQueue(true)
+      console.log(response)
+    } catch (err) {
+      // setGettingIntoQueue(false)
+      console.log('Error: ', err)
+    }
+  }
+
+  return (
+    <MainWrapper>
+      <div className="avatar-card">
+        <h2 className="user-nickname">{currentLSUser.nickname}</h2>
+        <p className="user-rank">Rank: {currentLSUser.rank}</p>
+
+        <Button
+          disabled={!isInQueue}
+          type="primary"
+          onClick={handleEnterInQueue}
+        >
+          Entrar en cola
+        </Button>
+      </div>
+    </MainWrapper>
+  )
+}
