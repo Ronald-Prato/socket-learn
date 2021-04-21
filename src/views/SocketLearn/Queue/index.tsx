@@ -34,16 +34,18 @@ export const Queue = () => {
   }, [])
 
   const handleEnterInQueue = async () => {
+    setIsInQueue(true)
     try {
       const response = await axios.get(
         `${SOCKET_URI}/get-in-queue?user=${currentLSUser.id}`
       )
       // setGettingIntoQueue(false)
-      setIsInQueue(true)
+      setIsInQueue(false)
       console.log(response)
     } catch (err) {
       // setGettingIntoQueue(false)
       console.log('Error: ', err)
+      setIsInQueue(false)
     }
   }
 
@@ -54,7 +56,7 @@ export const Queue = () => {
         <p className="user-rank">Rank: {currentLSUser.rank}</p>
 
         <Button
-          disabled={!isInQueue}
+          disabled={isInQueue}
           type="primary"
           onClick={handleEnterInQueue}
         >
