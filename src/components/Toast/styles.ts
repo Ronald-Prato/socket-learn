@@ -25,7 +25,7 @@ export const MainWrapper = styled.div<{ type: ToastTypes }>`
 
   animation: showup linear 100ms forwards;
   width: 20%;
-  min-width: 260px;
+  min-width: 280px;
   max-width: 300px;
   position: fixed;
   top: 2%;
@@ -45,14 +45,16 @@ export const MainWrapper = styled.div<{ type: ToastTypes }>`
   align-items: center;
 
   p.title {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bolder;
     color: ${({ type }) => titleColorsHash[type]};
     margin: 0;
+    text-align: center;
   }
 
   span.text {
     font-size: 14px;
     color: ${({ type }) => subtitleColorsHash[type]};
+    text-align: center;
   }
 `

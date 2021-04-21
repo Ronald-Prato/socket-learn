@@ -4,10 +4,10 @@ import { useContext, useEffect, useState } from 'react'
 
 import { Button } from 'antd'
 import Context from '../../../globalState'
-import { IRejectInfo } from './models'
 import { IToast } from '../../../components/Toast/models'
 import { MainWrapper } from './styles'
 import { NewMatchModal } from './NewMatchModal'
+import { RejectReasonCode } from './models'
 import { SOCKET_URI } from '../../../constants'
 import { Toast } from '../../../components/Toast'
 import axios from 'axios'
@@ -46,43 +46,36 @@ export const Queue = () => {
       setMatchFoud(true)
     })
 
-    socket.on('removed-from-queue', () => {
-      setIsInQueue(false)
-      setMatchFoud(false)
-      alert('Removed from queue')
+    socket.on('removed-from-queue', (rejectCode: RejectReasonCode) => {
+      setIsInQueue(false) // remove the user from the queue
+      setMatchFoud(false) // hide the modal
+
+      const exceptionMessage = exceptionCodeHashMap(rejectCode, 'self')
+      const title = exceptionMessage.split('[%]')[0]
+      const text = exceptionMessage.split('[%]')[1]
+      setToast({
+        title,
+        text,
+        type: 'error',
+        timer: 3000,
+        onClose: () => setShowToast(false),
+      })
+      setShowToast(true)
     })
 
-    socket.on('match-canceled', (info: IRejectInfo) => {
-      setMatchFoud(false)
-
-      if (info.guilty === currentLSUser.id) {
-        const exceptionMessage = exceptionCodeHashMap(info.reason, 'self')
-        const title = exceptionMessage.split('[%]')[0]
-        const text = exceptionMessage.split('[%]')[1]
-        setToast({
-          title,
-          text,
-          type: 'error',
-          timer: 3000,
-          onClose: () => setShowToast(false),
-        })
-        setShowToast(true)
-        setIsInQueue(false)
-      }
-
-      if (info.guilty !== currentLSUser.id) {
-        const exceptionMessage = exceptionCodeHashMap(info.reason, 'other')
-        const title = exceptionMessage.split('[%]')[0]
-        const text = exceptionMessage.split('[%]')[1]
-        setToast({
-          title,
-          text,
-          type: 'info',
-          timer: 3000,
-          onClose: () => setShowToast(false),
-        })
-        setShowToast(true)
-      }
+    socket.on('match-canceled', (rejectCode: RejectReasonCode) => {
+      setMatchFoud(false) // just hide the modal but stills in queue
+      const exceptionMessage = exceptionCodeHashMap(rejectCode, 'other')
+      const title = exceptionMessage.split('[%]')[0]
+      const text = exceptionMessage.split('[%]')[1]
+      setToast({
+        title,
+        text,
+        type: 'info',
+        timer: 3000,
+        onClose: () => setShowToast(false),
+      })
+      setShowToast(true)
     })
   }, [])
 
@@ -131,7 +124,10 @@ export const Queue = () => {
           Check Queue{' '}
         </button>
         <br /> */}
-        {/* <button onClick={() => setShowToast(true)}> Check Users </button> */}
+        {/* <button onClick={() => socket.emit('check-users')}>
+          {' '}
+          Check Users{' '}
+        </button> */}
       </div>
 
       {matchFound && (
