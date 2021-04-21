@@ -38,9 +38,9 @@ export const Queue = () => {
     setIsInQueue(true)
     console.log(currentLSUser)
     try {
-      const response = await axios.get(
-        `${SOCKET_URI}/get-in-queue?user=${currentLSUser.id}`
-      )
+      const response = await axios.post(`${SOCKET_URI}/get-in-queue`, {
+        userId: currentLSUser.id,
+      })
       // setGettingIntoQueue(false)
       setIsInQueue(false)
       console.log(response)
@@ -66,6 +66,11 @@ export const Queue = () => {
         </Button>
 
         <button onClick={() => socket.emit('request-greet')}>
+          {' '}
+          Check Queue{' '}
+        </button>
+        <br />
+        <button onClick={() => socket.emit('check-users')}>
           {' '}
           Check Users{' '}
         </button>
