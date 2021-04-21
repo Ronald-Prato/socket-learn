@@ -90,7 +90,10 @@ export const Queue = () => {
           Check Queue{' '}
         </button>
         <br /> */}
-        <button onClick={() => setMatchFoud(true)}> Check Users </button>
+        <button onClick={() => socket.emit('check-users')}>
+          {' '}
+          Check Users{' '}
+        </button>
       </div>
 
       {matchFound && (
