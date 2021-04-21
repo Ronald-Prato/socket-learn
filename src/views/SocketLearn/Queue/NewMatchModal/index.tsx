@@ -1,7 +1,6 @@
-import { Button, Spin } from 'antd'
-
 import { INewMatchModal } from './models'
 import { MainWrapper } from './styles'
+import { Spin } from 'antd'
 import checkIcon from '../../../../assets/icons/check.svg'
 import { useState } from 'react'
 import xIcon from '../../../../assets/icons/x.svg'
