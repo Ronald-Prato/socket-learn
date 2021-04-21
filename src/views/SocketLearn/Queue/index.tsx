@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from 'react'
 import { Button } from 'antd'
 import Context from '../../../globalState'
 import { MainWrapper } from './styles'
+import { NewMatchModal } from './NewMatchModal'
 import { SOCKET_URI } from '../../../constants'
 import axios from 'axios'
 import { checkIfCurrentSession } from '../../../utils'
@@ -15,6 +16,7 @@ export const Queue = () => {
   const { state, setCurrentUser } = useContext(Context)
   const { user: currentLSUser } = state
   const [isInQueue, setIsInQueue] = useState(false)
+  const [matchFound, setMatchFoud] = useState(false)
 
   useEffect(() => {
     const currentUser = checkIfCurrentSession()
@@ -30,7 +32,16 @@ export const Queue = () => {
   // This is only to register lifetime-use sockets listeners
   useEffect(() => {
     socket.on('matched', () => {
-      // setShowModal(true)
+      setMatchFoud(true)
+    })
+    socket.on('removed-from-queue', () => {
+      setIsInQueue(false)
+      setMatchFoud(false)
+      alert('Removed from queue')
+    })
+    socket.on('match-canceled', () => {
+      setMatchFoud(false)
+      setIsInQueue(false)
     })
   }, [])
 
@@ -42,7 +53,6 @@ export const Queue = () => {
         userId: currentLSUser.id,
       })
       // setGettingIntoQueue(false)
-      setIsInQueue(false)
       console.log(response)
     } catch (err) {
       // setGettingIntoQueue(false)
@@ -51,30 +61,45 @@ export const Queue = () => {
     }
   }
 
+  const handleAcceptMatch = () => {
+    socket.emit('accept-match', currentLSUser.id)
+  }
+
+  const handleRejectMatch = () => {
+    socket.emit('reject-match', currentLSUser)
+  }
+
   return (
     <MainWrapper>
       <div className="avatar-card">
         <h2 className="user-nickname">{currentLSUser.nickname}</h2>
         <p className="user-rank">Rank: {currentLSUser.rank}</p>
 
-        <Button
-          disabled={isInQueue}
-          type="primary"
-          onClick={handleEnterInQueue}
-        >
-          Entrar en cola
-        </Button>
+        {!isInQueue ? (
+          <Button type="primary" onClick={handleEnterInQueue}>
+            Entrar en cola
+          </Button>
+        ) : (
+          <Button type="primary" danger onClick={handleEnterInQueue}>
+            Salir
+          </Button>
+        )}
 
-        <button onClick={() => socket.emit('request-greet')}>
+        {/* <button onClick={() => socket.emit('request-greet')}>
           {' '}
           Check Queue{' '}
         </button>
-        <br />
-        <button onClick={() => socket.emit('check-users')}>
-          {' '}
-          Check Users{' '}
-        </button>
+        <br /> */}
+        <button onClick={() => setMatchFoud(true)}> Check Users </button>
       </div>
+
+      {matchFound && (
+        <NewMatchModal
+          message="Partida encontrada"
+          onAccept={handleAcceptMatch}
+          onReject={handleRejectMatch}
+        />
+      )}
     </MainWrapper>
   )
 }
