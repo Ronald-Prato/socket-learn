@@ -13,6 +13,8 @@ interface IToast {
 export const toast = ({ title, timer, type, text, progressBar }: IToast) =>
   Swal.mixin({
     toast: true,
+    position: 'top',
+    showConfirmButton: false,
     title: title,
     text: text,
     icon: type, //built in icons: success, warning, error, info

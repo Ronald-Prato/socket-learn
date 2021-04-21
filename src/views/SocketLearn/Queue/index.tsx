@@ -1,16 +1,17 @@
+import { checkIfCurrentSession, exceptionCodeHashMap } from '../../../utils'
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useContext, useEffect, useState } from 'react'
 
 import { Button } from 'antd'
 import Context from '../../../globalState'
 import { IRejectInfo } from './models'
+import { IToast } from '../../../components/Toast/models'
 import { MainWrapper } from './styles'
 import { NewMatchModal } from './NewMatchModal'
 import { SOCKET_URI } from '../../../constants'
+import { Toast } from '../../../components/Toast'
 import axios from 'axios'
-import { checkIfCurrentSession } from '../../../utils'
 import io from 'socket.io-client'
-import { toast } from '../../../Feedback/Swals'
 
 const socket = io(SOCKET_URI)
 
@@ -19,6 +20,14 @@ export const Queue = () => {
   const { user: currentLSUser } = state
   const [isInQueue, setIsInQueue] = useState(false)
   const [matchFound, setMatchFoud] = useState(false)
+  const [showToast, setShowToast] = useState(false)
+  const [toast, setToast] = useState<IToast>({
+    title: '',
+    text: '',
+    type: 'info',
+    timer: 0,
+    onClose: () => {},
+  })
 
   useEffect(() => {
     const currentUser = checkIfCurrentSession()
@@ -45,12 +54,32 @@ export const Queue = () => {
       setIsInQueue(false)
       setMatchFoud(false)
 
-      if (info.guilty === currentLSUser.id && info.reason === 'MatchRejected') {
-        toast({
-          title: 'Has rechazado la partida',
-          text: 'Te hemos devuelto al lobby',
+      if (info.guilty === currentLSUser.id) {
+        const exceptionMessage = exceptionCodeHashMap(info.reason, 'self')
+        const title = exceptionMessage.split('[%]')[0]
+        const text = exceptionMessage.split('[%]')[1]
+        setToast({
+          title,
+          text,
+          type: 'error',
           timer: 3000,
-        }).fire()
+          onClose: () => setShowToast(false),
+        })
+        setShowToast(true)
+      }
+
+      if (info.guilty !== currentLSUser.id) {
+        const exceptionMessage = exceptionCodeHashMap(info.reason, 'other')
+        const title = exceptionMessage.split('[%]')[0]
+        const text = exceptionMessage.split('[%]')[1]
+        setToast({
+          title,
+          text,
+          type: 'info',
+          timer: 3000,
+          onClose: () => setShowToast(false),
+        })
+        setShowToast(true)
       }
     })
   }, [])
@@ -100,10 +129,7 @@ export const Queue = () => {
           Check Queue{' '}
         </button>
         <br /> */}
-        <button onClick={() => socket.emit('check-users')}>
-          {' '}
-          Check Users{' '}
-        </button>
+        {/* <button onClick={() => setShowToast(true)}> Check Users </button> */}
       </div>
 
       {matchFound && (
@@ -113,6 +139,8 @@ export const Queue = () => {
           onReject={handleRejectMatch}
         />
       )}
+
+      {showToast && <Toast {...toast} />}
     </MainWrapper>
   )
 }
