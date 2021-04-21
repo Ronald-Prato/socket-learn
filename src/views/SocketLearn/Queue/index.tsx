@@ -19,10 +19,11 @@ export const Queue = () => {
   useEffect(() => {
     const currentUser = checkIfCurrentSession()
     setCurrentUser(currentUser)
+    socket.emit('new-user', currentUser)
   }, [])
 
   useEffect(() => {
-    socket.emit('new-user', state.user)
+    //socket.emit('new-user', state.user)
     socket.emit('check-in', state.user.id)
   }, [state.user])
 
@@ -35,6 +36,7 @@ export const Queue = () => {
 
   const handleEnterInQueue = async () => {
     setIsInQueue(true)
+    console.log(currentLSUser)
     try {
       const response = await axios.get(
         `${SOCKET_URI}/get-in-queue?user=${currentLSUser.id}`
@@ -62,6 +64,11 @@ export const Queue = () => {
         >
           Entrar en cola
         </Button>
+
+        <button onClick={() => socket.emit('request-greet')}>
+          {' '}
+          Check Users{' '}
+        </button>
       </div>
     </MainWrapper>
   )
