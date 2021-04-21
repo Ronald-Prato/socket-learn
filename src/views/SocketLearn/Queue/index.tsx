@@ -3,12 +3,14 @@ import { useContext, useEffect, useState } from 'react'
 
 import { Button } from 'antd'
 import Context from '../../../globalState'
+import { IRejectInfo } from './models'
 import { MainWrapper } from './styles'
 import { NewMatchModal } from './NewMatchModal'
 import { SOCKET_URI } from '../../../constants'
 import axios from 'axios'
 import { checkIfCurrentSession } from '../../../utils'
 import io from 'socket.io-client'
+import { toast } from '../../../Feedback/Swals'
 
 const socket = io(SOCKET_URI)
 
@@ -39,9 +41,17 @@ export const Queue = () => {
       setMatchFoud(false)
       alert('Removed from queue')
     })
-    socket.on('match-canceled', () => {
-      setMatchFoud(false)
+    socket.on('match-canceled', (info: IRejectInfo) => {
       setIsInQueue(false)
+      setMatchFoud(false)
+
+      if (info.guilty === currentLSUser.id && info.reason === 'MatchRejected') {
+        toast({
+          title: 'Has rechazado la partida',
+          text: 'Te hemos devuelto al lobby',
+          timer: 3000,
+        }).fire()
+      }
     })
   }, [])
 
