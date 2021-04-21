@@ -45,13 +45,14 @@ export const Queue = () => {
     socket.on('matched', () => {
       setMatchFoud(true)
     })
+
     socket.on('removed-from-queue', () => {
       setIsInQueue(false)
       setMatchFoud(false)
       alert('Removed from queue')
     })
+
     socket.on('match-canceled', (info: IRejectInfo) => {
-      setIsInQueue(false)
       setMatchFoud(false)
 
       if (info.guilty === currentLSUser.id) {
@@ -66,6 +67,7 @@ export const Queue = () => {
           onClose: () => setShowToast(false),
         })
         setShowToast(true)
+        setIsInQueue(false)
       }
 
       if (info.guilty !== currentLSUser.id) {
