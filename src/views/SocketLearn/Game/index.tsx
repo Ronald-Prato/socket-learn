@@ -1,6 +1,6 @@
 import { MainWrapper } from './styles'
 import axios from 'axios'
-import io from 'socket.io-client'
+// import io from 'socket.io-client'
 
 export const Game = () => {
   const checkThingsOut = async () => {
