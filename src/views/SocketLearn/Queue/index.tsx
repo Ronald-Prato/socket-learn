@@ -5,20 +5,21 @@ import { useContext, useEffect, useState } from 'react'
 import { Button } from 'antd'
 import Context from '../../../globalState'
 import { IToast } from '../../../components/Toast/models'
+import { IUser } from '../../../globalState/models'
 import { MainWrapper } from './styles'
 import { NewMatchModal } from './NewMatchModal'
 import { RejectReasonCode } from './models'
-import { SOCKET_URI } from '../../../constants'
+import { SOLOQ_URI } from '../../../constants'
 import { Toast } from '../../../components/Toast'
 import axios from 'axios'
 import io from 'socket.io-client'
 import { useHistory } from 'react-router-dom'
 
-const socket = io(SOCKET_URI)
+const socket = io(SOLOQ_URI)
 
 export const Queue = () => {
   const history = useHistory()
-  const { state, setCurrentUser } = useContext(Context)
+  const { state, setCurrentUser, setNewGameRoom } = useContext(Context)
   const { user: currentLSUser } = state
   const [isInQueue, setIsInQueue] = useState(false)
   const [matchFound, setMatchFoud] = useState(false)
@@ -81,7 +82,8 @@ export const Queue = () => {
       setShowToast(true)
     })
 
-    socket.on('match-accepted', () => {
+    socket.on('match-accepted', (usersInRoom: IUser[]) => {
+      setNewGameRoom(usersInRoom)
       history.push('/io')
     })
   }, [])
@@ -90,7 +92,7 @@ export const Queue = () => {
     setIsInQueue(true)
     console.log(currentLSUser)
     try {
-      const response = await axios.post(`${SOCKET_URI}/get-in-queue`, {
+      const response = await axios.post(`${SOLOQ_URI}/get-in-queue`, {
         userId: currentLSUser.id,
       })
       // setGettingIntoQueue(false)

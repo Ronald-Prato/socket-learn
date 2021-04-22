@@ -1,6 +1,7 @@
-import produce from 'immer'
-import { createContext, useState } from 'react'
 import { IGlobalContext, IGlobalState, IState, IUser } from './models'
+import { createContext, useState } from 'react'
+
+import produce from 'immer'
 
 const Context = createContext<IGlobalContext>({} as IGlobalContext)
 
@@ -10,6 +11,7 @@ const initialState: IState = {
     nickname: '',
     rank: 0,
   },
+  gameRoom: [],
 }
 
 export const GlobalState = ({ children }: IGlobalState) => {
@@ -25,8 +27,15 @@ export const GlobalState = ({ children }: IGlobalState) => {
     )
   }
 
+  const setNewGameRoom = (newRoom: IUser[]) => {
+    setState({
+      ...state,
+      gameRoom: newRoom,
+    })
+  }
+
   return (
-    <Context.Provider value={{ state, setCurrentUser }}>
+    <Context.Provider value={{ state, setCurrentUser, setNewGameRoom }}>
       {children}
     </Context.Provider>
   )
