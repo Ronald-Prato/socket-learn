@@ -36,6 +36,18 @@ export const MainWrapper = styled.div`
     align-items: center;
     position: relative;
 
+    div.block-opacity {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      top: 0;
+      left: 0;
+      border-radius: 10px;
+      z-index: 100;
+      cursor: not-allowed;
+    }
+
     div.versus-section {
       display: flex;
       justify-content: center;
@@ -143,5 +155,83 @@ export const MainWrapper = styled.div`
         color: whitesmoke;
       }
     }
+
+    div.question-area {
+      padding: 20px;
+      height: 20rem;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+
+      p.question-counter {
+        position: absolute;
+        top: -20%;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        text-align: center;
+        margin: 0;
+        color: lightgreen;
+        font-size: 1rem;
+        font-weight: bolder;
+      }
+
+      h3.question {
+        font-size: 1.2rem;
+        text-align: center;
+        color: white;
+      }
+
+      div.options-area {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        position: relative;
+
+        div.single-option {
+          cursor: pointer;
+          width: 45%;
+          min-width: 240px;
+          background: #101010;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4),
+            inset 0 0 3px 1px rgba(255, 255, 255, 0.2);
+          border-radius: 8px;
+          padding: 12px 10px;
+          margin: 10px 5px;
+          overflow: hidden;
+          box-sizing: border-box;
+          display: grid;
+          grid-template-columns: 25px 1fr;
+
+          p.option-letter {
+            align-self: center;
+            margin: 0;
+            font-size: 1rem;
+            color: whitesmoke;
+          }
+
+          p.option-text {
+            align-self: center;
+            margin: 0;
+            font-size: 1rem;
+            color: whitesmoke;
+          }
+        }
+      }
+    }
+  }
+
+  div.opacity-lock {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.4);
   }
 `
