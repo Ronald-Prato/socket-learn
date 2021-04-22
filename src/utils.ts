@@ -26,12 +26,14 @@ export const checkIfCurrentSession = () => {
 }
 
 type HashOptions = 'self' | 'other'
-export const exceptionCodeHashMap = (key: string, option: HashOptions) => {
+export const exceptionCodeHashMap = (key: string, option?: HashOptions) => {
   const hashMap: { [key: string]: string } = {
     MatchRejected:
       option === 'self'
         ? 'Has abandonado la partida[%]Te devolvimos al lobby'
         : 'Un usuario ha rechazado la partida[%]Te hemos devuelto a la cola',
+    GameServerError:
+      'Hubo un problema en el servidor[%]Intenta de nuevo más tarde',
   }
 
   return hashMap[key]

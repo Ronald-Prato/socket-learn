@@ -12,10 +12,12 @@ import { SOCKET_URI } from '../../../constants'
 import { Toast } from '../../../components/Toast'
 import axios from 'axios'
 import io from 'socket.io-client'
+import { useHistory } from 'react-router-dom'
 
 const socket = io(SOCKET_URI)
 
 export const Queue = () => {
+  const history = useHistory()
   const { state, setCurrentUser } = useContext(Context)
   const { user: currentLSUser } = state
   const [isInQueue, setIsInQueue] = useState(false)
@@ -65,6 +67,7 @@ export const Queue = () => {
 
     socket.on('match-canceled', (rejectCode: RejectReasonCode) => {
       setMatchFoud(false) // just hide the modal but stills in queue
+      rejectCode !== 'MatchRejected' && setIsInQueue(false)
       const exceptionMessage = exceptionCodeHashMap(rejectCode, 'other')
       const title = exceptionMessage.split('[%]')[0]
       const text = exceptionMessage.split('[%]')[1]
@@ -76,6 +79,10 @@ export const Queue = () => {
         onClose: () => setShowToast(false),
       })
       setShowToast(true)
+    })
+
+    socket.on('match-accepted', () => {
+      history.push('/io')
     })
   }, [])
 

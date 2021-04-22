@@ -1,6 +1,7 @@
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom'
 
 import { CreatePlayground } from './views/CreatePlayground'
+import { Game } from './views/SocketLearn/Game'
 import { Home } from './views/Home'
 import { Login } from './views/Login'
 import { Queue } from './views/SocketLearn/Queue'
@@ -35,6 +36,7 @@ function App() {
           component={CreatePlayground}
         />
         <PrivateRoute exact path="/queue" component={Queue} />
+        <PrivateRoute exact path="/io" component={Game} />
       </Switch>
     </BrowserRouter>
   )
