@@ -66,19 +66,19 @@ export const Game = () => {
         })
         setIsBlocked(true)
         setShowInformativeToast(true)
+      } else {
+        const playerWrong = gameRoom.filter(
+          singleUser => singleUser.id === wrongUserId
+        )[0]
+        setToast({
+          title: `${playerWrong.nickname} se ha equivocado`,
+          text: `Turno de ${currentLSUser.nickname}`,
+          timer: 3000,
+          type: 'info',
+          onClose: () => {},
+        })
+        setShowInformativeToast(true)
       }
-
-      const playerWrong = gameRoom.filter(
-        singleUser => singleUser.id === wrongUserId
-      )[0]
-      setToast({
-        title: `${playerWrong.nickname} se ha equivocado`,
-        text: `Turno de ${currentLSUser.nickname}`,
-        timer: 3000,
-        type: 'info',
-        onClose: () => {},
-      })
-      setIsBlocked(true)
     })
 
     socket.on('next-round', (roundWinner: string) => {
