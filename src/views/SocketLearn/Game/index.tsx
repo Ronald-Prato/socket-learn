@@ -134,7 +134,7 @@ export const Game = () => {
       localQuestion.correct_answer,
       ...localQuestion.incorrect_answers,
     ]
-    return optionsArr.sort(() => 0.5 - Math.random() * 10)
+    return optionsArr.sort(() => 0.5 - Math.random())
   }
 
   const getLetter = (index: number) => {
@@ -261,8 +261,10 @@ export const Game = () => {
 
       {winnerModal && (
         <div className="winner-modal">
-          {winner.id === currentLSUser.id && <h2> Has ganado </h2>}
-
+          <h2>
+            {' '}
+            {winner.id === currentLSUser.id ? 'Has ganado' : 'Has perdido'}{' '}
+          </h2>
           <div className="winner-rank-info">
             <img alt="Rank" src={rankIcon} className="winner-icon" />
             <p> {winner.id === currentLSUser.id ? '5 pts' : '2 pts'} </p>
