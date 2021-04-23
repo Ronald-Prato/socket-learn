@@ -1,7 +1,7 @@
 import { Button, Spin } from 'antd'
 import { IAPIQuestion, IRound } from './models'
 import { checkIfCurrentSession, setInLocalStorage } from '../../../utils'
-import { memo, useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 import Context from '../../../globalState'
 /* eslint-disable react-hooks/exhaustive-deps */
@@ -17,7 +17,7 @@ import { useHistory } from 'react-router-dom'
 
 const socket = io(GAME_URI)
 
-export const Game = memo(() => {
+export const Game = () => {
   const history = useHistory()
   const { state, setCurrentUser } = useContext(Context)
   const { user: currentLSUser, gameRoom } = state
@@ -39,9 +39,6 @@ export const Game = memo(() => {
   )
 
   useEffect(() => {
-    if (!gameRoom.length) {
-      history.replace('/queue')
-    }
     const currentUser = checkIfCurrentSession()
     setCurrentUser(currentUser)
   }, [])
@@ -54,6 +51,10 @@ export const Game = memo(() => {
   }, [localQuestion])
 
   useEffect(() => {
+    if (!gameRoom.length) {
+      updatePlayerScore(-2)
+    }
+
     socket.emit('check-in', currentLSUser.id)
 
     socket.on('waiting-for-players-to-be-ready', (roomId: string) => {
@@ -78,6 +79,7 @@ export const Game = memo(() => {
         const playerTurn = gameRoom.filter(
           singleUser => singleUser.id !== wrongUserId
         )[0]
+
         setToast({
           title: `${currentLSUser.nickname} se ha equivocado`,
           text: `Turno de ${playerTurn.nickname}`,
@@ -91,6 +93,7 @@ export const Game = memo(() => {
         const playerWrong = gameRoom.filter(
           singleUser => singleUser.id === wrongUserId
         )[0]
+
         setToast({
           title: `${playerWrong.nickname} se ha equivocado`,
           text: `Turno de ${currentLSUser.nickname}`,
@@ -192,9 +195,16 @@ export const Game = memo(() => {
   }
 
   const updatePlayerScore = (pointsAmount: number) => {
+    let newRank = currentLSUser.rank
+    newRank += pointsAmount
+
+    if (newRank < 0) {
+      newRank = 0
+    }
+
     const newPlayerScore: IUser = {
       ...currentLSUser,
-      rank: currentLSUser.rank + pointsAmount,
+      rank: newRank,
     }
 
     setInLocalStorage('current-user', newPlayerScore)
@@ -241,10 +251,13 @@ export const Game = memo(() => {
               Empezar
             </Button>
           </>
-        ) : (
+        ) : gameStarted && gameRoom.length ? (
           Object.keys(localQuestion).length > 0 && (
             <div className="question-area">
-              <p className="question-counter">
+              <p
+                onClick={() => console.log(gameRoom)}
+                className="question-counter"
+              >
                 {' '}
                 {questionCounter} / {maxQuestionPerRound}{' '}
               </p>
@@ -266,6 +279,27 @@ export const Game = memo(() => {
                   </div>
                 ))}
               </div>
+            </div>
+          )
+        ) : (
+          !gameRoom.length && (
+            <div className="disconnection-section">
+              <p> Te has desconectado del juego </p>
+
+              <div className="minus-points">
+                <img alt="Rank" src={rankIcon} />
+                <p> - 2 pts </p>
+              </div>
+
+              <Button
+                type="primary"
+                onClick={() => {
+                  history.replace('/queue')
+                  window.location.reload()
+                }}
+              >
+                Volver al lobby
+              </Button>
             </div>
           )
         )}
@@ -322,4 +356,4 @@ export const Game = memo(() => {
       <button onClick={sendThings}>Send things out</button> */}
     </MainWrapper>
   )
-})
+}

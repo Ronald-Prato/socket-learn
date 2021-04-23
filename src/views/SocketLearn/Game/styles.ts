@@ -139,6 +139,37 @@ export const MainWrapper = styled.div`
       }
     }
 
+    div.disconnection-section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      div.minus-points {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0 0 20px 0;
+
+        img {
+          width: 40px;
+        }
+
+        p {
+          margin: 10px 0 0 0;
+          color: white;
+          font-size: 20px;
+        }
+      }
+
+      p {
+        font-size: 1.2rem;
+        text-align: center;
+        color: white;
+      }
+    }
+
     div.state-indicator {
       position: absolute;
       bottom: 5%;
