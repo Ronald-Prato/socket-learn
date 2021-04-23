@@ -39,6 +39,9 @@ export const Game = memo(() => {
   )
 
   useEffect(() => {
+    if (!gameRoom.length) {
+      history.replace('/queue')
+    }
     const currentUser = checkIfCurrentSession()
     setCurrentUser(currentUser)
   }, [])
@@ -122,12 +125,20 @@ export const Game = memo(() => {
     })
 
     socket.on('game-finished', (winner: IUser) => {
-      console.log('WINNER: ', winner)
       setWinner(winner)
       setShowWinnerModal(true)
       winner.id === currentLSUser.id
         ? updatePlayerScore(5)
         : updatePlayerScore(2)
+    })
+
+    socket.on('previous-afk', () => {
+      const disconnectedUser = gameRoom.filter(
+        singleUser => singleUser.id !== currentLSUser.id
+      )[0]
+      setAfk(disconnectedUser)
+      setShowAfkModal(true)
+      updatePlayerScore(5)
     })
 
     socket.on('user-disconnected', (disconnectedId: string) => {
@@ -198,7 +209,7 @@ export const Game = memo(() => {
           </>
         )}
         {showInformativeToast && <Toast {...toast} />}
-        {!gameStarted ? (
+        {!gameStarted && gameRoom.length ? (
           <>
             <div className="versus-section">
               <div className="avatar">
