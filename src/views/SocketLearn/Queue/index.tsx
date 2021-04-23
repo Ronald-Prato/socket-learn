@@ -93,6 +93,7 @@ export const Queue = () => {
     try {
       await axios.post(`${SOLOQ_URI}/get-in-queue`, {
         userId: currentLSUser.id,
+        userRank: currentLSUser.rank,
       })
       // setGettingIntoQueue(false)
     } catch (err) {
