@@ -119,7 +119,9 @@ export const Game = () => {
       console.log('WINNER: ', winner)
       setWinner(winner)
       setShowWinnerModal(true)
-      winner.id === currentLSUser.id && updatePlayerScore()
+      winner.id === currentLSUser.id
+        ? updatePlayerScore(5)
+        : updatePlayerScore(2)
     })
   }, [state.user])
 
@@ -163,10 +165,10 @@ export const Game = () => {
     socket.emit('wrong-attempt', currentLSUser.id)
   }
 
-  const updatePlayerScore = () => {
+  const updatePlayerScore = (pointsAmount: number) => {
     const newPlayerScore: IUser = {
       ...currentLSUser,
-      rank: currentLSUser.rank + 5,
+      rank: currentLSUser.rank + pointsAmount,
     }
 
     setInLocalStorage('current-user', newPlayerScore)
@@ -259,14 +261,12 @@ export const Game = () => {
 
       {winnerModal && (
         <div className="winner-modal">
-          <h2> {winner.nickname} ha ganado </h2>
+          {winner.id === currentLSUser.id && <h2> Has ganado </h2>}
 
-          {winner.id === currentLSUser.id && (
-            <div className="winner-rank-info">
-              <img alt="Rank" src={rankIcon} className="winner-icon" />
-              <p> +5 pts </p>
-            </div>
-          )}
+          <div className="winner-rank-info">
+            <img alt="Rank" src={rankIcon} className="winner-icon" />
+            <p> {winner.id === currentLSUser.id ? '5 pts' : '2 pts'} </p>
+          </div>
 
           <Button type="primary" onClick={() => history.replace('/queue')}>
             Volver a jugar
