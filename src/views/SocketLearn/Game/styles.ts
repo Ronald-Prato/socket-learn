@@ -235,7 +235,8 @@ export const MainWrapper = styled.div`
     background: rgba(0, 0, 0, 0.4);
   }
 
-  div.winner-modal {
+  div.winner-modal,
+  div.afk-modal {
     width: 90%;
     max-width: 600px;
     min-width: 300px;

@@ -1,7 +1,7 @@
 import { Button, Spin } from 'antd'
 import { IAPIQuestion, IRound } from './models'
 import { checkIfCurrentSession, setInLocalStorage } from '../../../utils'
-import { useContext, useEffect, useState } from 'react'
+import { memo, useContext, useEffect, useState } from 'react'
 
 import Context from '../../../globalState'
 /* eslint-disable react-hooks/exhaustive-deps */
@@ -17,7 +17,7 @@ import { useHistory } from 'react-router-dom'
 
 const socket = io(GAME_URI)
 
-export const Game = () => {
+export const Game = memo(() => {
   const history = useHistory()
   const { state, setCurrentUser } = useContext(Context)
   const { user: currentLSUser, gameRoom } = state
@@ -31,6 +31,9 @@ export const Game = () => {
   const [showAttemptResponse, setShowAttemptResponse] = useState(false)
   const [winnerModal, setShowWinnerModal] = useState(false)
   const [winner, setWinner] = useState<IUser>({} as IUser)
+  const [afk, setAfk] = useState<IUser>({} as IUser)
+  const [showAfkModal, setShowAfkModal] = useState(false)
+  const [randomSortOptions, setRandomSortOptions] = useState<string[]>([])
   const [localQuestion, setLocalQuestion] = useState<IAPIQuestion>(
     {} as IAPIQuestion
   )
@@ -40,9 +43,12 @@ export const Game = () => {
     setCurrentUser(currentUser)
   }, [])
 
-  // useEffect(() => {
-  //   Object.keys(localQuestion).length && setQuestionCounter(questionCounter + 1)
-  // }, [localQuestion])
+  useEffect(() => {
+    if (Object.keys(localQuestion).length) {
+      const newSortedOptions = getRandomOrderOptions()
+      setRandomSortOptions(newSortedOptions)
+    }
+  }, [localQuestion])
 
   useEffect(() => {
     socket.emit('check-in', currentLSUser.id)
@@ -122,6 +128,15 @@ export const Game = () => {
       winner.id === currentLSUser.id
         ? updatePlayerScore(5)
         : updatePlayerScore(2)
+    })
+
+    socket.on('user-disconnected', (disconnectedId: string) => {
+      const disconnectedUser = gameRoom.filter(
+        singleUser => singleUser.id === disconnectedId
+      )[0]
+      setAfk(disconnectedUser)
+      setShowAfkModal(true)
+      updatePlayerScore(5)
     })
   }, [state.user])
 
@@ -229,7 +244,7 @@ export const Game = () => {
               </h3>
 
               <div className="options-area">
-                {getRandomOrderOptions().map((singleOption, index) => (
+                {randomSortOptions.map((singleOption, index) => (
                   <div
                     onClick={() => !isBlocked && handleAttempt(singleOption)}
                     key={index}
@@ -267,7 +282,7 @@ export const Game = () => {
           </h2>
           <div className="winner-rank-info">
             <img alt="Rank" src={rankIcon} className="winner-icon" />
-            <p> {winner.id === currentLSUser.id ? '5 pts' : '2 pts'} </p>
+            <p> + {winner.id === currentLSUser.id ? '5 pts' : '2 pts'} </p>
           </div>
 
           <Button type="primary" onClick={() => history.replace('/queue')}>
@@ -277,8 +292,23 @@ export const Game = () => {
       )}
 
       {winnerModal && <div className="opacity" />}
+
+      {showAfkModal && (
+        <div className="afk-modal">
+          <h2> {afk.nickname} se ha desconectado </h2>
+
+          <div className="winner-rank-info">
+            <img alt="Rank" src={rankIcon} className="winner-icon" />
+            <p> + 5 pts </p>
+          </div>
+
+          <Button type="primary" onClick={() => history.replace('/queue')}>
+            Volver al lobby
+          </Button>
+        </div>
+      )}
       {/* <button onClick={checkThingsOut}>Check things out</button>
       <button onClick={sendThings}>Send things out</button> */}
     </MainWrapper>
   )
-}
+})
