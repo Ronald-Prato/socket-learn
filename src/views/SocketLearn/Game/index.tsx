@@ -66,7 +66,6 @@ export const Game = () => {
     })
 
     socket.on('new-round', (newRound: IRound) => {
-      console.log('New Question', newRound.question)
       setLocalQuestion(newRound.question)
       setQuestionCounter(newRound.roundCounter)
       setIsBlocked(false)
