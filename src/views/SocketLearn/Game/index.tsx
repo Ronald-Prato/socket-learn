@@ -1,21 +1,24 @@
 import { Button, Spin } from 'antd'
+import { IAPIQuestion, IRound } from './models'
+import { checkIfCurrentSession, setInLocalStorage } from '../../../utils'
 import { useContext, useEffect, useState } from 'react'
 
 import Context from '../../../globalState'
 /* eslint-disable react-hooks/exhaustive-deps */
 import { GAME_URI } from '../../../constants'
-import { IAPIQuestion } from './models'
 import { IToast } from '../../../components/Toast/models'
+import { IUser } from '../../../globalState/models'
 import { MainWrapper } from './styles'
 import { Toast } from '../../../components/Toast'
 import _ from 'underscore'
-import { checkIfCurrentSession } from '../../../utils'
 import io from 'socket.io-client'
 import rankIcon from '../../../assets/icons/rank.svg'
+import { useHistory } from 'react-router-dom'
 
 const socket = io(GAME_URI)
 
 export const Game = () => {
+  const history = useHistory()
   const { state, setCurrentUser } = useContext(Context)
   const { user: currentLSUser, gameRoom } = state
   const [isReady, setIsReady] = useState(false)
@@ -26,6 +29,8 @@ export const Game = () => {
   const [toast, setToast] = useState<IToast>({} as IToast)
   const [showInformativeToast, setShowInformativeToast] = useState(false)
   const [showAttemptResponse, setShowAttemptResponse] = useState(false)
+  const [winnerModal, setShowWinnerModal] = useState(false)
+  const [winner, setWinner] = useState<IUser>({} as IUser)
   const [localQuestion, setLocalQuestion] = useState<IAPIQuestion>(
     {} as IAPIQuestion
   )
@@ -34,6 +39,10 @@ export const Game = () => {
     const currentUser = checkIfCurrentSession()
     setCurrentUser(currentUser)
   }, [])
+
+  // useEffect(() => {
+  //   Object.keys(localQuestion).length && setQuestionCounter(questionCounter + 1)
+  // }, [localQuestion])
 
   useEffect(() => {
     socket.emit('check-in', currentLSUser.id)
@@ -46,10 +55,10 @@ export const Game = () => {
       setGameStarted(true)
     })
 
-    socket.on('new-question', (newQuestion: IAPIQuestion) => {
-      console.log('New Question', newQuestion)
-      setLocalQuestion(newQuestion)
-      setQuestionCounter(questionCounter + 1)
+    socket.on('new-round', (newRound: IRound) => {
+      console.log('New Question', newRound.question)
+      setLocalQuestion(newRound.question)
+      setQuestionCounter(newRound.roundCounter)
       setIsBlocked(false)
       setShowInformativeToast(false)
       setShowAttemptResponse(false)
@@ -63,7 +72,7 @@ export const Game = () => {
         setToast({
           title: `${currentLSUser.nickname} se ha equivocado`,
           text: `Turno de ${playerTurn.nickname}`,
-          timer: 3000,
+          timer: 2000,
           type: 'info',
           onClose: () => {},
         })
@@ -76,7 +85,7 @@ export const Game = () => {
         setToast({
           title: `${playerWrong.nickname} se ha equivocado`,
           text: `Turno de ${currentLSUser.nickname}`,
-          timer: 3000,
+          timer: 2000,
           type: 'info',
           onClose: () => {},
         })
@@ -88,11 +97,29 @@ export const Game = () => {
       setToast({
         title: `${roundWinner} ha acertado`,
         text: 'Buscando siguiente pregunta',
-        timer: 3000,
-        type: 'success',
+        timer: 2000,
+        type: currentLSUser.nickname === roundWinner ? 'success' : 'error',
         onClose: () => {},
       })
       setShowAttemptResponse(true)
+    })
+
+    socket.on('skip-round', () => {
+      setToast({
+        title: 'Ningún jugador acertó',
+        text: 'Saltando la pregunta',
+        type: 'info',
+        timer: 2000,
+        onClose: () => {},
+      })
+      setShowAttemptResponse(true)
+    })
+
+    socket.on('game-finished', (winner: IUser) => {
+      console.log('WINNER: ', winner)
+      setWinner(winner)
+      setShowWinnerModal(true)
+      winner.id === currentLSUser.id && updatePlayerScore()
     })
   }, [state.user])
 
@@ -134,6 +161,15 @@ export const Game = () => {
 
   const sendWrongAttempt = () => {
     socket.emit('wrong-attempt', currentLSUser.id)
+  }
+
+  const updatePlayerScore = () => {
+    const newPlayerScore: IUser = {
+      ...currentLSUser,
+      rank: currentLSUser.rank + 5,
+    }
+
+    setInLocalStorage('current-user', newPlayerScore)
   }
 
   return (
@@ -198,7 +234,7 @@ export const Game = () => {
                     className="single-option"
                   >
                     <p className="option-letter"> {getLetter(index)}. </p>
-                    <p className="option-text"> {singleOption} </p>
+                    <p className="option-text"> {_.unescape(singleOption)} </p>
                   </div>
                 ))}
               </div>
@@ -221,6 +257,24 @@ export const Game = () => {
         </>
       )}
 
+      {winnerModal && (
+        <div className="winner-modal">
+          <h2> {winner.nickname} ha ganado </h2>
+
+          {winner.id === currentLSUser.id && (
+            <div className="winner-rank-info">
+              <img alt="Rank" src={rankIcon} className="winner-icon" />
+              <p> +5 pts </p>
+            </div>
+          )}
+
+          <Button type="primary" onClick={() => history.replace('/queue')}>
+            Volver a jugar
+          </Button>
+        </div>
+      )}
+
+      {winnerModal && <div className="opacity" />}
       {/* <button onClick={checkThingsOut}>Check things out</button>
       <button onClick={sendThings}>Send things out</button> */}
     </MainWrapper>

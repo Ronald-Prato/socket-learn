@@ -86,7 +86,7 @@ export const Queue = () => {
       setNewGameRoom(usersInRoom)
       history.push('/io')
     })
-  }, [])
+  }, [state.user])
 
   const handleEnterInQueue = async () => {
     setIsInQueue(true)
