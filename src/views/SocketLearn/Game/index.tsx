@@ -50,6 +50,9 @@ export const Game = () => {
       console.log('New Question', newQuestion)
       setLocalQuestion(newQuestion)
       setQuestionCounter(questionCounter + 1)
+      setIsBlocked(false)
+      setShowInformativeToast(false)
+      setShowAttemptResponse(false)
     })
 
     socket.on('block-turn', (wrongUserId: string) => {
@@ -81,7 +84,7 @@ export const Game = () => {
       }
     })
 
-    socket.on('next-round', (roundWinner: string) => {
+    socket.on('round-winner', (roundWinner: string) => {
       setToast({
         title: `${roundWinner} ha acertado`,
         text: 'Buscando siguiente pregunta',
