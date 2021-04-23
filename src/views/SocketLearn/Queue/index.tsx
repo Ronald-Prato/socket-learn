@@ -90,13 +90,11 @@ export const Queue = () => {
 
   const handleEnterInQueue = async () => {
     setIsInQueue(true)
-    console.log(currentLSUser)
     try {
-      const response = await axios.post(`${SOLOQ_URI}/get-in-queue`, {
+      await axios.post(`${SOLOQ_URI}/get-in-queue`, {
         userId: currentLSUser.id,
       })
       // setGettingIntoQueue(false)
-      console.log(response)
     } catch (err) {
       // setGettingIntoQueue(false)
       console.log('Error: ', err)
