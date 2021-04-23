@@ -25,7 +25,7 @@ export const MainWrapper = styled.div`
     max-width: 600px;
     min-width: 300px;
     height: 30%;
-    min-height: 500px;
+    min-height: 550px;
     background: #323232;
     border-radius: 10px;
     padding: 60px 0;
@@ -233,5 +233,60 @@ export const MainWrapper = styled.div`
     height: 100vh;
     z-index: 100;
     background: rgba(0, 0, 0, 0.4);
+  }
+
+  div.winner-modal {
+    width: 90%;
+    max-width: 600px;
+    min-width: 300px;
+    height: 55%;
+    max-height: 550px;
+    background: #151515;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7),
+      inset 0 0 4px 0.5px rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+
+    h2 {
+      color: white;
+    }
+
+    div.winner-rank-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin: 20px 0;
+
+      img.winner-icon {
+        width: 40px;
+      }
+
+      p {
+        margin: 10px 0 0 0;
+        color: white;
+        font-size: 20px;
+      }
+    }
+  }
+
+  div.opacity {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 0;
   }
 `

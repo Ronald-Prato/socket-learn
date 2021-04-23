@@ -8,3 +8,8 @@ export interface IAPIQuestion {
   correct_answer: string
   incorrect_answers: string[]
 }
+
+export interface IRound {
+  roundCounter: number
+  question: IAPIQuestion
+}
